@@ -1,21 +1,18 @@
-# Setup commands:
 # uv sync                  → install all deps
 # uv sync --extra dev      → install with dev deps
 # uv run uvicorn app.main:app --reload   → run dev server
 # uv run pytest            → run tests
 
 [project]
-name = "agentic-chatbot"
+name = "shl-assessment-agent"
 version = "0.1.0"
-description = "Production-grade agentic AI chatbot backend with LangGraph and OpenRouter"
+description = "RAG-powered conversational agent for SHL assessment recommendations"
 authors = [{ name = "Abhinav", email = "abhinav@example.com" }]
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.111.0",
     "uvicorn[standard]>=0.29.0",
-    "langgraph>=0.1.0",
-    "langchain-core>=0.2.0",
-    "langchain-openai>=0.1.0",
+    "chromadb>=0.5.0",
     "openai>=1.30.0",
     "pydantic>=2.7.0",
     "pydantic-settings>=2.2.0",

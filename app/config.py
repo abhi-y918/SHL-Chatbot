@@ -6,27 +6,26 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """All runtime configuration values.
+    """All runtime configuration values."""
 
-    Values are loaded from environment variables (or .env file).
-    Defaults represent safe development settings.
-    """
-
-    # Application
     app_env: str = "development"
-    app_host: str = "0.0.0.0"
-    app_port: int = 8000
     log_level: str = "INFO"
 
     # OpenRouter / LLM
     openrouter_api_key: str = ""
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
     llm_model: str = "meta-llama/llama-3.3-70b-instruct"
-    llm_temperature: float = 0.7
-    llm_max_tokens: int = 1024
+    llm_temperature: float = 0.4
+    llm_max_tokens: int = 2048
 
-    # Session
-    session_timeout: int = 3600
+    # Catalog
+    catalog_url: str = (
+        "https://tcp-us-prod-rnd.shl.com/voiceRater/shl-ai-hiring/"
+        "shl_product_catalog.json"
+    )
+
+    # Retrieval
+    retrieval_top_k: int = 20
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -37,9 +36,5 @@ class Settings(BaseSettings):
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    """Return the cached singleton Settings instance.
-
-    Returns:
-        Application Settings loaded from environment.
-    """
+    """Return the cached singleton Settings instance."""
     return Settings()
