@@ -1,0 +1,124 @@
+# SHL Assessment Agent
+
+RAG-powered conversational agent that recommends SHL assessments from the product catalog. Built with **FastAPI**, **ChromaDB** (in-memory), and **OpenRouter** (Llama 3.3 70B).
+
+---
+
+## What It Does
+
+- **Clarifies** vague queries before recommending
+- **Recommends** 1–10 assessments with names and catalog URLs
+- **Refines** when users change constraints mid-conversation
+- **Compares** assessments using grounded catalog data
+- **Stays in scope** — only SHL assessments, refuses off-topic
+
+---
+
+## Architecture
+
+```
+User → POST /chat (stateless, full history)
+         ↓
+   Build search query from conversation
+         ↓
+   ChromaDB vector search (top 20 assessments)
+         ↓
+   Build system prompt + catalog context
+         ↓
+   OpenRouter LLM (Llama 3.3 70B)
+         ↓
+   Parse JSON → validate URLs against catalog
+         ↓
+   ChatResponse (reply + recommendations + end_of_conversation)
+```
+
+---
+
+## Project Structure
+
+```
+agentic-chatbot/
+├── pyproject.toml       # uv-managed deps
+├── .env.example         # env template
+├── .python-version
+└── app/
+    ├── main.py          # FastAPI: GET /health + POST /chat
+    ├── config.py         # pydantic-settings
+    ├── models.py         # ChatRequest, ChatResponse, Recommendation
+    ├── catalog.py        # Fetch + process SHL catalog JSON
+    ├── retriever.py      # ChromaDB in-memory indexing + search
+    ├── llm.py            # OpenRouter client via OpenAI SDK
+    ├── agent.py          # Orchestrates retrieval + LLM + parsing
+    └── prompts.py        # System prompt template
+```
+
+---
+
+## Quick Start
+
+### 1. Configure
+
+```bash
+cp .env.example .env
+# Set OPENROUTER_API_KEY=sk-or-...
+```
+
+### 2. Install
+
+```bash
+uv sync
+```
+
+### 3. Run
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+---
+
+## API
+
+### `GET /health`
+
+```json
+{ "status": "ok" }
+```
+
+### `POST /chat`
+
+**Request:**
+```json
+{
+  "messages": [
+    {"role": "user", "content": "Hiring a Java developer who works with stakeholders"},
+    {"role": "assistant", "content": "Sure. What is seniority level?"},
+    {"role": "user", "content": "Mid-level, around 4 years"}
+  ]
+}
+```
+
+**Response:**
+```json
+{
+  "reply": "Here are 5 assessments for a mid-level Java dev with stakeholder needs.",
+  "recommendations": [
+    {"name": "Java 8 (New)", "url": "https://www.shl.com/...", "test_type": "K"},
+    {"name": "OPQ32r", "url": "https://www.shl.com/...", "test_type": "P"}
+  ],
+  "end_of_conversation": false
+}
+```
+
+---
+
+## Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `OPENROUTER_API_KEY` | *(required)* | OpenRouter secret key |
+| `LLM_MODEL` | `meta-llama/llama-3.3-70b-instruct` | Model ID |
+| `LLM_TEMPERATURE` | `0.4` | Sampling temperature |
+| `LLM_MAX_TOKENS` | `2048` | Max completion tokens |
+| `CATALOG_URL` | SHL catalog URL | Product catalog JSON endpoint |
+| `RETRIEVAL_TOP_K` | `20` | Assessments retrieved per query |

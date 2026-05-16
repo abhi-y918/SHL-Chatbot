@@ -1,0 +1,40 @@
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# Environment variables (secrets)
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docs & samples
+README.md
+GenAI_SampleConversations/
+*.md
+
+# Logs
+*.log
