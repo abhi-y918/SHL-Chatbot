@@ -13,7 +13,7 @@ API_BASE = "https://shl.abhinav-yadav.me"
 st.set_page_config(
     page_title="SHL Assessment Recommender",
     page_icon="🧠",
-    layout="centered",
+    layout="wide",
     initial_sidebar_state="collapsed",
 )
 
@@ -31,21 +31,31 @@ html, body, [class*="st-"] {
     background-color: #FFFFFF;
 }
 header[data-testid="stHeader"] {
-    background-color: #FFFFFF;
-    border-bottom: 1px solid #E5E7EB;
+    display: none !important;
 }
 
 /* ── Hide Streamlit defaults ── */
 #MainMenu, footer, .stDeployButton { display: none !important; }
 
+/* ── Override Streamlit default container padding ── */
+.block-container {
+    padding-top: 80px !important;
+    padding-bottom: 20px !important;
+}
+
 /* ── Top bar / logo ── */
 .shl-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    background-color: #FFFFFF;
+    z-index: 99999;
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 16px 0 12px 0;
-    border-bottom: 2px solid #E5E7EB;
-    margin-bottom: 8px;
+    padding: 16px 2rem 12px 2rem;
+    border-bottom: 2px solid #D5E8D5;
 }
 .shl-logo {
     font-size: 32px;
@@ -59,13 +69,14 @@ header[data-testid="stHeader"] {
 .shl-title {
     font-size: 15px;
     font-weight: 500;
-    color: #6B7280;
+    color: #2E7D32;
     line-height: 1.3;
 }
 
 /* ── Chat container ── */
 .chat-container {
-    max-width: 780px;
+    width: 100%;
+    max-width: 100%;
     margin: 0 auto;
     padding-bottom: 140px;
 }
@@ -95,12 +106,12 @@ header[data-testid="stHeader"] {
 .avatar.bot-av    { background: #4B8B3B; color: #FFFFFF; }
 
 .bubble {
-    max-width: 72%;
+    max-width: 85%;
     padding: 12px 18px;
     border-radius: 18px;
     font-size: 14.5px;
     line-height: 1.6;
-    color: #1F2937;
+    color: #103310;
     word-wrap: break-word;
 }
 .bubble.user-bubble {
@@ -122,7 +133,7 @@ header[data-testid="stHeader"] {
 }
 .rec-card {
     background: #FFFFFF;
-    border: 1px solid #D1D5DB;
+    border: 1px solid #B8E0B8;
     border-radius: 10px;
     padding: 12px 16px;
     display: flex;
@@ -137,7 +148,7 @@ header[data-testid="stHeader"] {
 .rec-name {
     font-weight: 600;
     font-size: 14px;
-    color: #1F2937;
+    color: #103310;
 }
 .rec-type {
     display: inline-block;
@@ -172,7 +183,7 @@ header[data-testid="stHeader"] {
 
 /* ── Input area ── */
 .stChatInput > div {
-    border: 1.5px solid #D1D5DB !important;
+    border: 1.5px solid #B8E0B8 !important;
     border-radius: 14px !important;
     box-shadow: 0 1px 4px rgba(0,0,0,0.04) !important;
 }
@@ -197,47 +208,7 @@ header[data-testid="stHeader"] {
     40% { opacity: 1; transform: scale(1); }
 }
 
-/* ── Welcome screen ── */
-.welcome {
-    text-align: center;
-    padding: 80px 20px 40px;
-}
-.welcome h1 {
-    font-size: 28px;
-    font-weight: 700;
-    color: #1F2937;
-    margin-bottom: 8px;
-}
-.welcome p {
-    font-size: 15px;
-    color: #6B7280;
-    max-width: 500px;
-    margin: 0 auto 32px;
-    line-height: 1.6;
-}
-.prompt-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    max-width: 600px;
-    margin: 0 auto;
-}
-.chip {
-    background: #F9FAFB;
-    border: 1px solid #E5E7EB;
-    border-radius: 12px;
-    padding: 10px 18px;
-    font-size: 13px;
-    color: #374151;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.chip:hover {
-    border-color: #4B8B3B;
-    background: #F0FAF0;
-    color: #2E7D32;
-}
+/* ── Welcome screen (Removed) ── */
 </style>
 """, unsafe_allow_html=True)
 
@@ -247,7 +218,7 @@ st.markdown("""
 <div class="shl-header">
     <div class="shl-logo">SHL<span>.</span></div>
     <div class="shl-title">Assessment Recommender<br>
-        <span style="font-size:12px;color:#9CA3AF;">Powered by AI</span>
+        <span style="font-size:12px;color:#4B8B3B;">Powered by AI</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -255,7 +226,9 @@ st.markdown("""
 
 # ── Session state ──────────────────────────────────────────────
 if "messages" not in st.session_state:
-    st.session_state.messages = []
+    st.session_state.messages = [
+        {"role": "assistant", "content": "👋 Welcome to SHL Assessment Recommender! How can I help you today?"}
+    ]
 if "ended" not in st.session_state:
     st.session_state.ended = False
 
@@ -317,28 +290,7 @@ def _render_recs(recs: list) -> str:
     return f'<div class="rec-grid">{cards}</div>'
 
 
-# ── Welcome screen (empty state) ──────────────────────────────
-if not st.session_state.messages:
-    st.markdown("""
-    <div class="welcome">
-        <h1>👋 How can I help you today?</h1>
-        <p>I'm your SHL Assessment Recommendation Agent. Describe a role you're
-        hiring for, and I'll find the right assessments from the SHL catalog.</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Quick-start chips
-    cols = st.columns(2)
-    starters = [
-        "I'm hiring a Java developer",
-        "Need assessments for senior leadership",
-        "Screening 500 contact centre agents",
-        "What coding simulations do you have?",
-    ]
-    for i, txt in enumerate(starters):
-        if cols[i % 2].button(txt, key=f"chip_{i}", use_container_width=True):
-            st.session_state.messages.append({"role": "user", "content": txt})
-            st.rerun()
+# (Welcome screen and quick-start chips removed)
 
 
 # ── Render conversation history ────────────────────────────────
