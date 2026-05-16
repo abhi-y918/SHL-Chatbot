@@ -6,7 +6,8 @@ Run: uv run streamlit run streamlit_app.py
 import streamlit as st
 import httpx
 
-API_BASE = "http://localhost:8000"
+# API_BASE = "http://localhost:8000"
+API_BASE = "https://shl.abhinav-yadav.me"
 
 # ── Page config ────────────────────────────────────────────────
 st.set_page_config(
