@@ -218,7 +218,7 @@ st.markdown("""
 <div class="shl-header">
     <div class="shl-logo">SHL<span>.</span></div>
     <div class="shl-title">Assessment Recommender<br>
-        <span style="font-size:12px;color:#4B8B3B;">Powered by AI</span>
+        <span style="font-size:12px;color:#4B8B3B;">Powered by Yadav Ji</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
