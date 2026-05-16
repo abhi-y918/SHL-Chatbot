@@ -1,17 +1,17 @@
 """OpenRouter LLM client using the OpenAI SDK."""
 
-import json
-import logging
-
 from openai import OpenAI
 
 from app.config import get_settings
+from app.core.decorators import log_execution, retry
+from app.core.exceptions import LLMError
+from app.utils.logger import get_logger
 
-logger = logging.getLogger(__name__)
+_logger = get_logger(__name__)
 
 
-class LLMClient:
-    """Thin wrapper around the OpenAI SDK configured for OpenRouter."""
+class LLMService:
+    """Wrapper around the OpenAI SDK configured for OpenRouter."""
 
     def __init__(self) -> None:
         settings = get_settings()
@@ -23,25 +23,14 @@ class LLMClient:
         self._temperature = settings.llm_temperature
         self._max_tokens = settings.llm_max_tokens
 
-    def chat(
-        self,
-        system_prompt: str,
-        messages: list[dict[str, str]],
-    ) -> str:
-        """Send a chat completion request and return the assistant reply.
-
-        Args:
-            system_prompt: System instructions for the model.
-            messages: Conversation history as [{"role": ..., "content": ...}].
-
-        Returns:
-            Raw assistant response text.
-        """
+    @retry(max_attempts=3, delay=2.0)
+    @log_execution
+    def invoke(self, system_prompt: str, messages: list[dict[str, str]]) -> str:
+        """Send chat completion request and return the reply text."""
         full_messages = [
             {"role": "system", "content": system_prompt},
             *messages,
         ]
-
         try:
             response = self._client.chat.completions.create(
                 model=self._model,
@@ -49,9 +38,6 @@ class LLMClient:
                 temperature=self._temperature,
                 max_tokens=self._max_tokens,
             )
-            content = response.choices[0].message.content or ""
-            logger.debug("LLM response length: %d chars", len(content))
-            return content
-        except Exception:
-            logger.exception("LLM call failed")
-            raise
+            return response.choices[0].message.content or ""
+        except Exception as exc:
+            raise LLMError("LLM invocation failed", str(exc)) from exc

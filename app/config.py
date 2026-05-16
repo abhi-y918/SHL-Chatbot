@@ -6,10 +6,16 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """All runtime configuration values."""
+    """All runtime configuration values.
 
+    Loaded from environment variables or .env file.
+    Defaults are safe development values.
+    """
+
+    # Application
     app_env: str = "development"
     log_level: str = "INFO"
+    session_timeout: int = 3600
 
     # OpenRouter / LLM
     openrouter_api_key: str = ""
