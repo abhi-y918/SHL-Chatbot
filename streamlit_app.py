@@ -1,8 +1,3 @@
-"""
-SHL Assessment Recommender — Streamlit Chat UI
-Run: uv run streamlit run streamlit_app.py
-"""
-
 import streamlit as st
 import httpx
 

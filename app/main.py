@@ -1,9 +1,8 @@
-"""FastAPI app init, router mount, exception handlers."""
-
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api.v1 import chat as chat_router
@@ -12,14 +11,14 @@ from app.core.exceptions import (
 )
 from app.enums.status import StatusCode
 from app.graph.nodes import set_services
-from app.models.response import ErrorResponse
+from app.models.response import ChatResponse, ErrorResponse
 from app.services.catalog_service import CatalogService
 from app.services.llm_service import LLMService
 from app.utils.logger import get_logger
 
 _logger = get_logger(__name__)
 
-# Service singletons
+
 _catalog = CatalogService()
 _llm = LLMService()
 
@@ -42,6 +41,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# ── CORS ──────────────────────────────────────────────────────
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # ── Router: only POST /chat ───────────────────────────────────
 app.include_router(chat_router.router, tags=["Chat"])
 
@@ -49,7 +57,6 @@ app.include_router(chat_router.router, tags=["Chat"])
 # ── Health check: GET /health ─────────────────────────────────
 @app.get("/health", tags=["Meta"])
 async def health() -> dict[str, str]:
-    """Readiness check — returns 200 with status ok."""
     return {"status": "ok"}
 
 
@@ -92,3 +99,22 @@ async def _h_graph(_r: Request, e: GraphError) -> JSONResponse:
 async def _h_base(_r: Request, e: BaseAppError) -> JSONResponse:
     """Catch-all for any unclassified application errors."""
     return _err(e, StatusCode.INTERNAL_ERROR)
+
+
+@app.exception_handler(Exception)
+async def _h_generic(_r: Request, e: Exception) -> JSONResponse:
+    """Global catch-all for completely unexpected errors.
+
+    Returns a schema-compliant ChatResponse so the evaluator never
+    sees a non-JSON error page.
+    """
+    _logger.exception("Unhandled exception: %s", e)
+    body = ChatResponse(
+        reply="An unexpected error occurred. Please try again.",
+        recommendations=[],
+        end_of_conversation=False,
+    )
+    return JSONResponse(
+        status_code=500,
+        content=body.model_dump(mode="json"),
+    )

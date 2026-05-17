@@ -1,16 +1,9 @@
-"""Application configuration loaded from environment via pydantic-settings."""
-
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """All runtime configuration values.
-
-    Loaded from environment variables or .env file.
-    Defaults are safe development values.
-    """
 
     # Application
     app_env: str = "development"

@@ -1,5 +1,3 @@
-"""Logger factory with colored output."""
-
 import logging
 import sys
 
@@ -13,7 +11,7 @@ class ColorFormatter(logging.Formatter):
         logging.WARNING: "\033[33m",
         logging.ERROR: "\033[31m",
         logging.CRITICAL: "\033[35m",
-    }
+    }   
     RESET = "\033[0m"
 
     def format(self, record: logging.LogRecord) -> str:

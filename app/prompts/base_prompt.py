@@ -1,4 +1,3 @@
-"""Abstract base prompt."""
 
 from abc import ABC, abstractmethod
 

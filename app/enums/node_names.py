@@ -1,4 +1,3 @@
-"""LangGraph node name enumeration."""
 
 from enum import Enum
 

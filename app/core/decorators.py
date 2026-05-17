@@ -41,14 +41,14 @@ def log_execution(func: F) -> F:
 
     @functools.wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        _logger.info("→ %s", func.__name__)
+        _logger.info("-> %s", func.__name__)
         start = time.perf_counter()
         try:
             result = func(*args, **kwargs)
-            _logger.info("← %s (%.3fs)", func.__name__, time.perf_counter() - start)
+            _logger.info("<- %s (%.3fs)", func.__name__, time.perf_counter() - start)
             return result
         except Exception as exc:
-            _logger.error("✗ %s raised %s", func.__name__, exc)
+            _logger.error("XX %s raised %s", func.__name__, exc)
             raise
     return wrapper  # type: ignore[return-value]
 

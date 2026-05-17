@@ -1,4 +1,3 @@
-"""ChatAgent: handles SHL assessment recommendations, clarification, and refinement."""
 
 from typing import Any
 
