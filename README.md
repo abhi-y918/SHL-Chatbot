@@ -2,8 +2,8 @@
 
 An agentic AI chatbot that helps hiring managers and recruiters discover the right SHL assessments through natural conversation. Instead of requiring users to know exact product names or filter categories, the agent takes a vague hiring intent and refines it into a grounded shortlist drawn entirely from the SHL product catalog.
 
-**Live API**: [https://shl-chatbot-qr34.onrender.com](https://shl-chatbot-qr34.onrender.com)  
-**Frontend**: [https://shl-chatbot-frontend.streamlit.app](https://shl-chatbot-frontend.streamlit.app)
+**Live API**: [https://shl.abhinav-yadav.me](https://shl.abhinav-yadav.me)  
+**Frontend**: [https://f-shl.abhinav-yadav.me](https://f-shl.abhinav-yadav.me)
 
 ---
 
